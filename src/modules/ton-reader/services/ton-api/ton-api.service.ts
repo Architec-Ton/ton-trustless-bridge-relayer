@@ -77,20 +77,32 @@ export class TonApiService {
       .then((res) => res.data);
   }
 
+  async getPrevBlockSeqno(id: BaseTonBlockInfo): Promise<number> {
+    const data = tonClientBlockRequestToLiteApiBlockRequest(id)
+    const payload = `seqno=${data.seqno}&workchain=${data.workchain}&shard=${data.shard}&file_hash=${data.file_hash}`
+
+    return axios
+      .get<any>(this.liteApiUrl + 'getBlockHeader?' + payload)
+      .then((res) => {
+        return Number(res.data.result.prev_blocks.seqno);
+      })
+  }
+
   async getPreviousKeyBlock(
     currentMSblock: BaseTonBlockInfo,
     canReturnCurrent = false,
   ) {
-    const block = await this.getBlockBoc(currentMSblock).then(parseBlock);
-    if (block.info.key_block && canReturnCurrent) {
-      return currentMSblock;
-    }
+    // const block = await this.getBlockBoc(currentMSblock).then(parseBlock);
+    // if (block.info.key_block && canReturnCurrent) {
+    //   return currentMSblock;
+    // }
+    const prev_key_block_seqno = await this.getPrevBlockSeqno(currentMSblock)
     const previousKeyBlock = (
-      await this.getMasterchainBlockWithShards(block.info.prev_key_block_seqno)
+      await this.getMasterchainBlockWithShards(prev_key_block_seqno)
     ).find(
       (shard) =>
         shard.workchain === -1 &&
-        shard.seqno === block.info.prev_key_block_seqno,
+        shard.seqno === prev_key_block_seqno,
     );
 
     return previousKeyBlock;
