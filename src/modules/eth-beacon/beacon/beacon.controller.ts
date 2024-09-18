@@ -7,7 +7,7 @@ import {
 import { EthBeaconService } from '../../prisma/services/eth-beacon/eth-beacon.service.js';
 import { sleep } from '../../../lib/utils/index.js';
 import { Beacon, Execution } from '@prisma/client';
-import { Address, Builder, Cell, beginCell } from 'ton-core';
+import { Address, Builder, Cell, beginCell } from '@ton/core';
 import { Opcodes } from './LightClient.js';
 import { Base64 } from '@tonconnect/protocol';
 import { ConfigService } from '@nestjs/config';

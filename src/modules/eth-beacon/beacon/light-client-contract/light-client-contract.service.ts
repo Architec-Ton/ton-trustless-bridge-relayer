@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
-import { Address, OpenedContract, Sender, TonClient, WalletContractV4 } from "ton";
+import { Address, OpenedContract, Sender, TonClient, WalletContractV4 } from "@ton/ton";
 import { LightClient } from "../LightClient.js";
 
 @Injectable()

@@ -1,6 +1,6 @@
 import { Base64 } from "@tonconnect/protocol";
 import { bytes } from "../../../../lib/evm-data/utils/index.js";
-import { Cell, beginCell, Address } from "ton-core";
+import { Cell, beginCell, Address } from "@ton/core";
 import { Opcodes } from "../LightClient.js";
 
 export function initOptimisticBoc(beacon: Cell) {

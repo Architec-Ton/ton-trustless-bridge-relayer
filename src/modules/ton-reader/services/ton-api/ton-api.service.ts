@@ -9,7 +9,7 @@ import {
   formatTonBlock,
   tonClientBlockRequestToLiteApiBlockRequest,
 } from '../../../../lib/utils/index.js';
-import { TonClient4 } from 'ton';
+import { TonClient4 } from '@ton/ton';
 import axios from 'axios';
 import { parseBlock } from '../../../../lib/utils/blockReader.js';
 import { TonBlock } from '@prisma/client';
@@ -140,7 +140,7 @@ export class TonApiService {
       shardProofRes = (
         await axios.get(
           this.toncenterUrl +
-            `getShardBlockProof?workchain=${block.workchain}&shard=${block.shard}&seqno=${block.seqno}&from_seqno=${block.mcParent.seqno}`,
+          `getShardBlockProof?workchain=${block.workchain}&shard=${block.shard}&seqno=${block.seqno}&from_seqno=${block.mcParent.seqno}`,
           {
             headers: {
               'X-API-KEY': this.configService.get<string>('TONCENTER_API_KEY'),
@@ -162,7 +162,7 @@ export class TonApiService {
       mc_proof = (
         await axios.get(
           this.toncenterUrl +
-            `getShardBlockProof?workchain=${nextBlock.workchain}&shard=${nextBlock.shard}&seqno=${nextBlock.seqno}&from_seqno=${block.seqno}`,
+          `getShardBlockProof?workchain=${nextBlock.workchain}&shard=${nextBlock.shard}&seqno=${nextBlock.seqno}&from_seqno=${block.seqno}`,
           {
             headers: {
               'X-API-KEY': this.configService.get<string>('TONCENTER_API_KEY'),
@@ -184,7 +184,7 @@ export class TonApiService {
       data = (
         await axios.get(
           this.toncenterUrl +
-            `getShardBlockProof?workchain=${block.workchain}&shard=${block.shard}&seqno=${block.seqno}`,
+          `getShardBlockProof?workchain=${block.workchain}&shard=${block.shard}&seqno=${block.seqno}`,
           {
             headers: {
               'X-API-KEY': this.configService.get<string>('TONCENTER_API_KEY'),
@@ -206,8 +206,8 @@ export class TonApiService {
         await axios
           .get(
             this.toncenterUrl +
-              'lookupBlock' +
-              `?workchain=${workchain}&shard=${'-9223372036854775808'}&lt=${lt}&api_key=54dbf47689e0a421871a07296c5f8b443d4b140ad18d26391db4f96e9e19eb0c`,
+            'lookupBlock' +
+            `?workchain=${workchain}&shard=${'-9223372036854775808'}&lt=${lt}&api_key=54dbf47689e0a421871a07296c5f8b443d4b140ad18d26391db4f96e9e19eb0c`,
             {
               headers: {
                 'X-API-KEY':

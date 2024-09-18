@@ -18,7 +18,7 @@ COPY --from=builder /home/dist ./dist
 COPY --from=builder /home/node_modules ./node_modules/
 COPY --from=builder /home/package*.json ./
 
-COPY .env .
+COPY .env_example .
 
 EXPOSE 3000
 

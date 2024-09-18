@@ -17,7 +17,7 @@ import type {
   TLightClientUpdate,
 } from './types.js';
 import { LightClientContractService } from './light-client-contract/light-client-contract.service.js';
-import { Cell, Dictionary, beginCell, toNano } from 'ton-core';
+import { Cell, Dictionary, beginCell, toNano } from '@ton/core';
 import {
   SSZByteVectorTypeToCell,
   SSZRootToCell,
@@ -137,9 +137,9 @@ export function getExecutionContainerCell(data: IExecution, tail?: Cell) {
   const blockHashCell = SSZRootToCell(data.blockHash, transactionsCell);
   const baseFeePerGasCell = SSZRootToCell(
     '0x' +
-      Buffer.from(UintBn256.hashTreeRoot(BigInt(data.baseFeePerGas))).toString(
-        'hex',
-      ),
+    Buffer.from(UintBn256.hashTreeRoot(BigInt(data.baseFeePerGas))).toString(
+      'hex',
+    ),
     blockHashCell,
   );
   const tmp = new ByteListType(MAX_EXTRA_DATA_BYTES);
@@ -425,17 +425,17 @@ export class BeaconService {
       };
 
       let committee_branch_cell!: Cell;
-        for (let i = 0; i < updates[0].data.nextSyncCommitteeBranch.length; i++) {
-            const branch_item = updates[0].data.nextSyncCommitteeBranch[i];
-            if (!committee_branch_cell) {
-                committee_branch_cell = beginCell().storeBuffer(Buffer.from(branch_item)).endCell();
-            } else {
-                committee_branch_cell = beginCell()
-                    .storeBuffer(Buffer.from(branch_item))
-                    .storeRef(committee_branch_cell)
-                    .endCell();
-            }
+      for (let i = 0; i < updates[0].data.nextSyncCommitteeBranch.length; i++) {
+        const branch_item = updates[0].data.nextSyncCommitteeBranch[i];
+        if (!committee_branch_cell) {
+          committee_branch_cell = beginCell().storeBuffer(Buffer.from(branch_item)).endCell();
+        } else {
+          committee_branch_cell = beginCell()
+            .storeBuffer(Buffer.from(branch_item))
+            .storeRef(committee_branch_cell)
+            .endCell();
         }
+      }
 
       await this.contracsService.lightClientContract.sendVerifyNextCommittee(
         this.contracsService.tonSender,
@@ -455,10 +455,10 @@ export class BeaconService {
       ////////////////////////////////////////////////////
       let fixedCommitteeBits = '';
 
-        (updates[0].data.syncAggregate.syncCommitteeBits).uint8Array.forEach((el) => {
-            const a = getUint8ByteToBitBooleanArray(el);
-            fixedCommitteeBits += parseInt(a.map((el) => (el ? 1 : 0)).join(''), 2).toString(16);
-        });
+      (updates[0].data.syncAggregate.syncCommitteeBits).uint8Array.forEach((el) => {
+        const a = getUint8ByteToBitBooleanArray(el);
+        fixedCommitteeBits += parseInt(a.map((el) => (el ? 1 : 0)).join(''), 2).toString(16);
+      });
 
       for (let i = 0; i < 4; i++) {
         await this.contracsService.lightClientContract.sendAggregatePubkey(
@@ -484,7 +484,7 @@ export class BeaconService {
           aggregate: syncAggregateToCell({
             syncCommitteeSignature: '0x' + Buffer.from(updates[0].data.syncAggregate.syncCommitteeSignature).toString('hex'),
             syncCommitteeBits: '0x' + fixedCommitteeBits,
-        }),
+          }),
           beacon_hash: beginCell()
             .storeBuffer(Buffer.from(normBeacon.selfHash.slice(2), 'hex'))
             .endCell(),

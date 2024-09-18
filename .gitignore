@@ -2,7 +2,7 @@
 /dist
 /node_modules
 /data
-.env
+.env_example
 .env.test
 .db
 

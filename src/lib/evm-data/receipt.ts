@@ -1,5 +1,5 @@
 import {keccak, rlp} from 'ethereumjs-util';
-import {Cell, beginCell} from 'ton-core';
+import {Cell, beginCell} from '@ton/core';
 
 import {address, bytes, bytes256, bytes32, uint} from './utils/index.js';
 
