@@ -6,6 +6,7 @@ import {
   Signature,
 } from '../../../../lib/types/index.js';
 import {
+  base64ToHex,
   formatTonBlock,
   tonClientBlockRequestToLiteApiBlockRequest,
 } from '../../../../lib/utils/index.js';
@@ -14,6 +15,8 @@ import axios from 'axios';
 import { parseBlock } from '../../../../lib/utils/blockReader.js';
 import { TonBlock } from '@prisma/client';
 import axiosRetry from 'axios-retry';
+import { bytesToBase64 } from '../../../../lib/ton-rocks-js/utils/index.js';
+import { sleep, toBase64 } from '@lodestar/utils';
 
 // console.log(axiosRetry);
 // // @ts-ignore
@@ -36,15 +39,23 @@ export class TonApiService {
   });
 
   private liteApiUrl = this.configService.get<string>('LITE_API_ENDPOINT');
+  private liteApiKey = this.configService.get<string>('LITE_API_KEY');
   private toncenterUrl = this.configService.get<string>('TONCENTER_ENDPOINT');
 
   constructor(private configService: ConfigService) {}
 
   async getLastBlock(count = 0): Promise<BaseTonBlockInfo> {
     try {
-      const { last: lastBlock } = await this.tonClient4.getLastBlock();
-
-      return formatTonBlock(lastBlock);
+      const lastBlock = (await axios
+        .get<any>(this.liteApiUrl + 'blockchain/masterchain-head', {headers: {"Authorization": `Bearer ${this.liteApiKey}`}})).data
+      await sleep(1000)
+      return {
+        ...lastBlock,
+        shard: lastBlock.shard,
+        workchain: lastBlock.workchain_id,
+        rootHash: lastBlock.root_hash,
+        fileHash: lastBlock.file_hash
+      };
     } catch (error) {
       if (count >= 20) {
         throw Error('getLastblock failed by timeout');
@@ -70,39 +81,28 @@ export class TonApiService {
   }
 
   async getBlockBoc(id: BaseTonBlockInfo): Promise<LiteApiBlockResponse> {
-    return axios
-      .post<LiteApiBlockResponse>(this.liteApiUrl + 'lite_server_get_block', {
-        id: tonClientBlockRequestToLiteApiBlockRequest(id),
-      })
-      .then((res) => res.data);
-  }
-
-  async getPrevBlockSeqno(id: BaseTonBlockInfo): Promise<number> {
-    const data = tonClientBlockRequestToLiteApiBlockRequest(id)
-    const payload = `seqno=${data.seqno}&workchain=${data.workchain}&shard=${data.shard}&file_hash=${data.file_hash}`
-
-    return axios
-      .get<any>(this.liteApiUrl + 'getBlockHeader?' + payload)
-      .then((res) => {
-        return Number(res.data.result.prev_blocks.seqno);
-      })
+    const id_resp = `(${id.workchain},${id.shard},${id.seqno},${id.rootHash},${id.fileHash})`
+    const res =  (await axios
+      .get<LiteApiBlockResponse>(this.liteApiUrl + 'liteserver/get_block/' + id_resp,
+        {headers: {"Authorization": `Bearer ${this.liteApiKey}`}})).data;
+    await sleep(1000)
+    return res
   }
 
   async getPreviousKeyBlock(
     currentMSblock: BaseTonBlockInfo,
     canReturnCurrent = false,
   ) {
-    // const block = await this.getBlockBoc(currentMSblock).then(parseBlock);
-    // if (block.info.key_block && canReturnCurrent) {
-    //   return currentMSblock;
-    // }
-    const prev_key_block_seqno = await this.getPrevBlockSeqno(currentMSblock)
+    const block = await this.getBlockBoc(currentMSblock).then(parseBlock);
+    if (block.info.key_block && canReturnCurrent) {
+      return currentMSblock;
+    }
     const previousKeyBlock = (
-      await this.getMasterchainBlockWithShards(prev_key_block_seqno)
+      await this.getMasterchainBlockWithShards(block.info.prev_key_block_seqno)
     ).find(
       (shard) =>
         shard.workchain === -1 &&
-        shard.seqno === prev_key_block_seqno,
+        shard.seqno === block.info.prev_key_block_seqno,
     );
 
     return previousKeyBlock;

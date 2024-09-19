@@ -70,27 +70,27 @@ export class BlockSubscriptionService implements OnModuleDestroy {
         return initialblock;
       }
 
-      const boc = await this.tonApi.getBlockBoc(mcBlock);
-      const parsedBlock = await parseBlock(boc);
+      // const boc = await this.tonApi.getBlockBoc(mcBlock);
+      // const parsedBlock = await parseBlock(boc);
       const prismaMCBlock = await this.tonBlockService.createTonBlock(
         mcBlock,
-        parsedBlock.info.key_block,
+        false,//parsedBlock.info.key_block,
       );
 
       await this.saveBlockTransactions(mcBlock, prismaMCBlock);
       await this.saveShardBlocks(shards, prismaMCBlock);
 
-      if (parsedBlock.info.key_block && this.shouldVerifyKeyblock) {
-        // this.eventEmitter.emit(
-        //   'keyblock.new',
-        //   new GotKeyblock(mcBlock, boc, parsedBlock, prismaMCBlock),
-        // );
-      }
-
-      if (parsedBlock.info.key_block) {
-        this.shouldVerifyKeyblock =
-          !!parsedBlock?.extra?.custom?.config?.config?.map.get('24');
-      }
+      // if (parsedBlock.info.key_block && this.shouldVerifyKeyblock) {
+      //   // this.eventEmitter.emit(
+      //   //   'keyblock.new',
+      //   //   new GotKeyblock(mcBlock, boc, parsedBlock, prismaMCBlock),
+      //   // );
+      // }
+      //
+      // if (parsedBlock.info.key_block) {
+      //   this.shouldVerifyKeyblock =
+      //     !!parsedBlock?.extra?.custom?.config?.config?.map.get('24');
+      // }
       seqno += 1;
     }
 

@@ -7,7 +7,7 @@ export async function parseBlock(
   block: LiteApiBlockResponse,
 ): Promise<ParsedBlock> {
   const [rootCell] = await TonRocks.types.Cell.fromBoc(
-    Buffer.from(block.data, 'base64').toString('hex'),
+    Buffer.from(block.data, 'hex'),
   );
 
   // Additional check for rootHash
