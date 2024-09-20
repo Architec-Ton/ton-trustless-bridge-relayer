@@ -60,6 +60,7 @@ export class TonApiService {
       if (count >= 20) {
         throw Error('getLastblock failed by timeout');
       }
+      console.log(error)
       return this.getLastBlock(count + 1);
     }
   }
@@ -76,6 +77,7 @@ export class TonApiService {
       if (count >= 20) {
         throw Error('getMasterchainBlockWithShards failed by timeout');
       }
+      console.log(error)
       return this.getMasterchainBlockWithShards(seqno, count + 1);
     }
   }
